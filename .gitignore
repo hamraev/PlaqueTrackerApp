@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+
+# Build outputs
+build/
+DerivedData/
+*.ipa
+*.dSYM
+*.dSYM.zip
+
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
+
+# Logs
+*.log
