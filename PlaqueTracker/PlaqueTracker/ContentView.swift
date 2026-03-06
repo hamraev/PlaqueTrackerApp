@@ -1,21 +1,18 @@
-//
-//  ContentView.swift
-//  PlaqueTracker
-//
-//  Created by Gayrat Hamraev on 3/3/26.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @State private var hasEnteredApp = false
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        Group {
+            if hasEnteredApp {
+                RootTabView()
+            } else {
+                WelcomeGateView {
+                    hasEnteredApp = true
+                }
+            }
         }
-        .padding()
     }
 }
 
