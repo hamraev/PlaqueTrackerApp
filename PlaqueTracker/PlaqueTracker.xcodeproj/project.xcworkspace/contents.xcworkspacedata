@@ -4,4 +4,10 @@
    <FileRef
       location = "self:">
    </FileRef>
+   <FileRef
+      location = "group:AppDashboardViewModel+Helpers.swift">
+   </FileRef>
+   <FileRef
+      location = "group:DashboardViewModel.placeholder.md">
+   </FileRef>
 </Workspace>
