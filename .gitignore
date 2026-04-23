@@ -21,3 +21,7 @@ Package.resolved
 
 # Logs
 *.log
+
+# Local workspace files
+TradingPlatform.code-workspace
+trading_platform/
