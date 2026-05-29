@@ -14,9 +14,11 @@ import UIKit
 struct LiveScanView: View {
     @ObservedObject var dashboardVM: AppDashboardViewModel
     @StateObject private var viewModel = LiveScanViewModel()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showingCamera = false
     @State private var cameraTarget: PhotoTarget = .before
     @State private var showingGallery = false
+    @State private var completionPulse = false
     private let rewardsViewModel = RewardsViewModel()
 
     @MainActor
@@ -61,6 +63,7 @@ struct LiveScanView: View {
         .onAppear {
             viewModel.reload()
         }
+        .animation(reduceMotion ? nil : AppTheme.Animation.smooth, value: viewModel.missionStep)
     }
 }
 
@@ -170,7 +173,7 @@ private extension LiveScanView {
                 }
 
                 Button {
-                    viewModel.missionStep = .takeAfter
+                    updateMissionStep(.takeAfter)
                 } label: {
                     Label("I Brushed the Red Spots", systemImage: "checkmark.circle.fill")
                         .secondaryButtonStyle()
@@ -212,7 +215,7 @@ private extension LiveScanView {
             }
         }
         .padding(AppTheme.Spacing.md)
-        .background(AppColors.cardBackground)
+        .background(ToothPatternBackground())
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
         .shadowMedium()
     }
@@ -262,6 +265,8 @@ private extension LiveScanView {
             Image(systemName: icon)
                 .font(.system(size: 42, weight: .bold))
                 .foregroundColor(color)
+                .scaleEffect(completionPulse ? 1.16 : 1.0)
+                .animation(reduceMotion ? nil : AppTheme.Animation.spring, value: completionPulse)
 
             VStack(spacing: AppTheme.Spacing.sm) {
                 Text(title)
@@ -311,10 +316,14 @@ private extension LiveScanView {
         case .before:
             dashboardVM.startScan()
             viewModel.saveBeforePhoto(data: data, plaqueScore: 100 - dashboardVM.smileScore)
+            AppFeedbackManager.shared.scanCompleted()
+            pulseCompletion()
         case .after:
             dashboardVM.stopScan()
             rewardsViewModel.apply(snapshot: dashboardVM.completeScan())
             viewModel.saveAfterPhoto(data: data, plaqueScore: max(100 - dashboardVM.smileScore - 24, 0))
+            AppFeedbackManager.shared.brushingMissionCompleted()
+            pulseCompletion()
         }
     }
 
@@ -328,6 +337,24 @@ private extension LiveScanView {
         let data = viewModel.makeMockPhotoData(label: target == .before ? "Before" : "After")
         #endif
         handlePhotoData(data, target: target)
+    }
+
+    func updateMissionStep(_ step: LiveScanViewModel.MissionStep) {
+        if reduceMotion {
+            viewModel.missionStep = step
+        } else {
+            withAnimation(AppTheme.Animation.smooth) {
+                viewModel.missionStep = step
+            }
+        }
+    }
+
+    func pulseCompletion() {
+        guard !reduceMotion else { return }
+        completionPulse = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            completionPulse = false
+        }
     }
 }
 

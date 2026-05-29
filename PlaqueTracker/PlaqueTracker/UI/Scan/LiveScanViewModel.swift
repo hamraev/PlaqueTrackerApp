@@ -13,7 +13,7 @@ import UIKit
 #endif
 
 final class LiveScanViewModel: ObservableObject {
-    enum MissionStep {
+    enum MissionStep: Equatable {
         case takeBefore
         case brushRedSpots
         case takeAfter
@@ -135,33 +135,103 @@ final class LiveScanViewModel: ObservableObject {
         permissionMessage = nil
     }
 
+    func addDemoSession() {
+        let examples: [(before: Int, after: Int, title: String)] = [
+            (4, 1, "Red Zones"),
+            (3, 1, "Molars"),
+            (1, 0, "Perfect")
+        ]
+
+        for (offset, example) in examples.enumerated() {
+            #if canImport(UIKit)
+            let beforeData = makeDemoSmilePhotoData(label: "Before", plaqueZones: example.before, focus: example.title)
+            let afterData = makeDemoSmilePhotoData(label: "After", plaqueZones: example.after, focus: example.title)
+            #else
+            let beforeData = makeMockPhotoData(label: "Before")
+            let afterData = makeMockPhotoData(label: "After")
+            #endif
+
+            var session = ScanPhotoSession(
+                createdAt: Calendar.current.date(byAdding: .day, value: -offset, to: Date()) ?? Date(),
+                plaqueZonesBefore: example.before,
+                plaqueZonesAfter: example.after,
+                improvementScore: min(max(example.before - example.after, 0) * 25, 100)
+            )
+            session.beforePhotoPath = store.savePhotoData(beforeData, sessionID: session.id, label: "before")
+            session.afterPhotoPath = store.savePhotoData(afterData, sessionID: session.id, label: "after")
+            upsert(session)
+        }
+    }
+
+    func resetDemoData() {
+        store.clearAllPhotos()
+        sessions = []
+        resetMission()
+    }
+
     #if canImport(UIKit)
     func makeMockPhotoData(label: String, color: UIColor) -> Data {
+        makeDemoSmilePhotoData(label: label, plaqueZones: label == "Before" ? 4 : 1, focus: "Demo")
+    }
+
+    private func makeDemoSmilePhotoData(label: String, plaqueZones: Int, focus: String) -> Data {
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: 900, height: 650))
         let image = renderer.image { context in
-            color.setFill()
+            UIColor(red: 0.88, green: 0.95, blue: 1.0, alpha: 1.0).setFill()
             context.fill(CGRect(x: 0, y: 0, width: 900, height: 650))
 
-            UIColor.white.withAlphaComponent(0.94).setFill()
-            UIBezierPath(roundedRect: CGRect(x: 170, y: 180, width: 560, height: 250), cornerRadius: 120).fill()
+            UIColor.white.withAlphaComponent(0.98).setFill()
+            UIBezierPath(roundedRect: CGRect(x: 130, y: 170, width: 640, height: 310), cornerRadius: 150).fill()
+
+            UIColor(red: 0.93, green: 0.98, blue: 1.0, alpha: 1.0).setFill()
+            UIBezierPath(roundedRect: CGRect(x: 190, y: 250, width: 520, height: 150), cornerRadius: 42).fill()
+
+            UIColor.white.setFill()
+            for row in 0..<2 {
+                for column in 0..<8 {
+                    let x = 210 + column * 61
+                    let y = row == 0 ? 238 : 340
+                    UIBezierPath(
+                        roundedRect: CGRect(x: x, y: y, width: 48, height: 74),
+                        cornerRadius: 14
+                    ).fill()
+                }
+            }
+
+            UIColor.systemRed.withAlphaComponent(0.88).setFill()
+            let plaqueSpots = [
+                CGRect(x: 218, y: 250, width: 28, height: 18),
+                CGRect(x: 640, y: 354, width: 30, height: 20),
+                CGRect(x: 332, y: 373, width: 34, height: 18),
+                CGRect(x: 575, y: 263, width: 28, height: 18)
+            ]
+            for spot in plaqueSpots.prefix(max(plaqueZones, 0)) {
+                UIBezierPath(ovalIn: spot).fill()
+            }
 
             UIColor.systemBlue.setFill()
-            UIBezierPath(ovalIn: CGRect(x: 305, y: 265, width: 55, height: 55)).fill()
-            UIBezierPath(ovalIn: CGRect(x: 540, y: 265, width: 55, height: 55)).fill()
+            UIBezierPath(ovalIn: CGRect(x: 305, y: 115, width: 42, height: 42)).fill()
+            UIBezierPath(ovalIn: CGRect(x: 555, y: 115, width: 42, height: 42)).fill()
 
             let smilePath = UIBezierPath()
-            smilePath.move(to: CGPoint(x: 340, y: 360))
-            smilePath.addQuadCurve(to: CGPoint(x: 560, y: 360), controlPoint: CGPoint(x: 450, y: 430))
+            smilePath.move(to: CGPoint(x: 350, y: 535))
+            smilePath.addQuadCurve(to: CGPoint(x: 550, y: 535), controlPoint: CGPoint(x: 450, y: 590))
             UIColor.systemPink.setStroke()
-            smilePath.lineWidth = 14
+            smilePath.lineWidth = 12
             smilePath.lineCapStyle = .round
             smilePath.stroke()
 
             let attributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 56, weight: .bold),
-                .foregroundColor: UIColor.white
+                .font: UIFont.systemFont(ofSize: 48, weight: .bold),
+                .foregroundColor: UIColor.systemBlue
             ]
-            label.draw(at: CGPoint(x: 280, y: 62), withAttributes: attributes)
+            label.draw(at: CGPoint(x: 70, y: 54), withAttributes: attributes)
+
+            let focusAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 26, weight: .semibold),
+                .foregroundColor: UIColor.darkGray
+            ]
+            focus.draw(at: CGPoint(x: 72, y: 112), withAttributes: focusAttributes)
         }
 
         return image.jpegData(compressionQuality: 0.86) ?? Data()

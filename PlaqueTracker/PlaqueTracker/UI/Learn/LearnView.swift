@@ -23,7 +23,7 @@ struct LearnView: View {
             .padding(AppTheme.Spacing.md)
         }
         .navigationTitle("Learn")
-        .background(AppColors.background)
+        .background(ScienceLabBackground())
         .sheet(item: $selectedLesson) { lesson in
             lessonDetail(lesson)
         }

@@ -3,6 +3,10 @@ import SwiftUI
 struct DashboardView: View {
     @StateObject private var dashboardVM = AppDashboardViewModel()
     @StateObject private var photoVM = LiveScanViewModel()
+    @EnvironmentObject private var settings: AppSettings
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var scorePulse = false
+    @State private var xpPulse = false
 
     var body: some View {
         ScrollView {
@@ -17,15 +21,31 @@ struct DashboardView: View {
             .padding(AppTheme.Spacing.md)
         }
         .navigationTitle("Home")
-        .background(AppColors.background)
+        .background(BubbleBackground())
+        .toolbar {
+            ToolbarItem {
+                NavigationLink {
+                    SettingsView()
+                } label: {
+                    Image(systemName: "gearshape.fill")
+                        .accessibilityLabel("Open Settings")
+                }
+            }
+        }
         .onAppear {
             photoVM.reload()
+        }
+        .onChange(of: dashboardVM.smileScore) { _, _ in
+            pulse(&scorePulse)
+        }
+        .onChange(of: dashboardVM.xpPoints) { _, _ in
+            pulse(&xpPulse)
         }
     }
 
     private var headerCard: some View {
         VStack(spacing: AppTheme.Spacing.md) {
-            Text("Great job today!")
+            Text("Hi, \(settings.childName)!")
                 .font(AppTheme.headline1)
                 .multilineTextAlignment(.center)
 
@@ -43,6 +63,9 @@ struct DashboardView: View {
                     Text("\(dashboardVM.smileScore)")
                         .font(AppTheme.display2)
                         .foregroundColor(Color.scoreColor(for: dashboardVM.smileScore))
+                        .contentTransition(.numericText())
+                        .scaleEffect(scorePulse ? 1.12 : 1.0)
+                        .animation(reduceMotion ? nil : AppTheme.Animation.spring, value: scorePulse)
 
                     Text("Smile Score")
                         .font(AppTheme.caption)
@@ -69,6 +92,8 @@ struct DashboardView: View {
         HStack(spacing: AppTheme.Spacing.md) {
             StatCard(icon: "flame.fill", value: "\(dashboardVM.streakDays)d", label: "Streak", color: .orange)
             StatCard(icon: "star.fill", value: "\(dashboardVM.xpPoints)", label: "XP", color: AppColors.primary)
+                .scaleEffect(xpPulse ? 1.04 : 1.0)
+                .animation(reduceMotion ? nil : AppTheme.Animation.spring, value: xpPulse)
             StatCard(icon: "crown.fill", value: "\(dashboardVM.level)", label: "Level", color: AppColors.accent)
         }
     }
@@ -114,6 +139,14 @@ struct DashboardView: View {
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
         }
         .buttonStyle(.plain)
+    }
+
+    private func pulse(_ value: inout Bool) {
+        guard !reduceMotion else { return }
+        value = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            value = false
+        }
     }
 }
 

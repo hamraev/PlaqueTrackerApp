@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct PlaqueTrackerApp: App {
+    @StateObject private var settings = AppSettings.shared
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(settings)
+                .preferredColorScheme(settings.colorMode.colorScheme)
         }
     }
 }

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RewardsView: View {
     @StateObject private var viewModel = RewardsViewModel()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedCategory: AchievementCategory = .getting_started
     @State private var pulseUnlock = false
     
@@ -41,7 +42,7 @@ struct RewardsView: View {
                 }
             }
             .navigationTitle("Rewards")
-            .background(AppColors.background)
+            .background(ConfettiBackground())
             .overlay(alignment: .top) {
                 if let achievement = viewModel.latestUnlock {
                     unlockBanner(for: achievement)
@@ -49,7 +50,7 @@ struct RewardsView: View {
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
             }
-            .animation(AppTheme.Animation.spring, value: viewModel.latestUnlock?.id)
+            .animation(reduceMotion ? nil : AppTheme.Animation.spring, value: viewModel.latestUnlock?.id)
             .onAppear {
                 viewModel.reload()
             }
@@ -119,7 +120,7 @@ private extension RewardsView {
         let isSelected = selectedCategory == category
         
         return Button(action: { 
-            withAnimation(.easeInOut(duration: AppTheme.Animation.standard)) {
+            withAnimation(reduceMotion ? nil : .easeInOut(duration: AppTheme.Animation.standard)) {
                 selectedCategory = category
             }
         }) {
@@ -157,13 +158,7 @@ private extension RewardsView {
     func recentUnlockCard(_ achievement: Achievement) -> some View {
         HStack(spacing: AppTheme.Spacing.md) {
             ZStack {
-                Circle()
-                    .fill(Color(hex: achievement.color).opacity(0.15))
-                    .frame(width: 50, height: 50)
-                
-                Image(systemName: achievement.icon)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(Color(hex: achievement.color))
+                GymBadgeView(icon: achievement.icon, color: Color(hex: achievement.color), isUnlocked: true, assetName: achievement.badgeAssetName, size: 52)
             }
             
             VStack(alignment: .leading, spacing: 4) {
@@ -221,13 +216,7 @@ private extension RewardsView {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             HStack(spacing: AppTheme.Spacing.md) {
                 ZStack {
-                    Circle()
-                        .fill(Color(hex: achievement.color).opacity(0.15))
-                        .frame(width: 44, height: 44)
-                    
-                    Image(systemName: achievement.icon)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(Color(hex: achievement.color))
+                    GymBadgeView(icon: achievement.icon, color: Color(hex: achievement.color), isUnlocked: false, assetName: achievement.badgeAssetName, size: 46)
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -289,15 +278,13 @@ private extension RewardsView {
     func achievementBadgeCell(_ achievement: Achievement) -> some View {
         ZStack(alignment: .topTrailing) {
             VStack(spacing: AppTheme.Spacing.sm) {
-                ZStack {
-                    Circle()
-                        .fill(Color(hex: achievement.color).opacity(0.15))
-                        .frame(width: 70, height: 70)
-                    
-                    Image(systemName: achievement.icon)
-                        .font(.system(size: 28, weight: .semibold))
-                        .foregroundColor(Color(hex: achievement.color))
-                }
+                GymBadgeView(
+                    icon: achievement.icon,
+                    color: Color(hex: achievement.color),
+                    isUnlocked: achievement.isUnlocked,
+                    assetName: achievement.badgeAssetName,
+                    size: 72
+                )
                 
                 Text(achievement.title)
                     .font(.caption)
@@ -328,7 +315,7 @@ private extension RewardsView {
             }
         }
         .scaleEffect(viewModel.latestUnlock?.id == achievement.id && pulseUnlock ? 1.06 : 1.0)
-        .animation(AppTheme.Animation.spring, value: pulseUnlock)
+        .animation(reduceMotion ? nil : AppTheme.Animation.spring, value: pulseUnlock)
         .onChange(of: viewModel.latestUnlock?.id) { _, unlockedID in
             guard unlockedID == achievement.id else { return }
             pulseUnlock = true
@@ -359,7 +346,7 @@ private extension RewardsView {
             Spacer()
 
             Button {
-                withAnimation(AppTheme.Animation.spring) {
+                withAnimation(reduceMotion ? nil : AppTheme.Animation.spring) {
                     viewModel.dismissLatestUnlock()
                 }
             } label: {
@@ -374,7 +361,7 @@ private extension RewardsView {
         .shadowMedium()
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                withAnimation(AppTheme.Animation.spring) {
+                withAnimation(reduceMotion ? nil : AppTheme.Animation.spring) {
                     viewModel.dismissLatestUnlock()
                 }
             }

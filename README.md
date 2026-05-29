@@ -125,13 +125,13 @@ PlaqueTracker/
 - [x] Implement before/after comparison
 - [x] Add progress visualization
 
-### Phase 5: Polish & Publishing
-- [ ] Animations and micro-interactions
-- [ ] Sound effects and haptics
-- [ ] Settings and customization
-- [ ] Notifications and reminders
-- [ ] Dark mode support
-- [ ] App Store optimization
+### Phase 5: Polish & Publishing ✅ COMPLETE
+- [x] Animations and micro-interactions
+- [x] Sound effects and haptics
+- [x] Settings and customization
+- [x] Notifications and reminders
+- [x] Dark mode support
+- [x] App Store optimization
 
 ## 🛠️ Tech Stack
 
@@ -201,14 +201,16 @@ git push -u origin feature/your-feature-name
 - **Achievements**: Badges for milestones
 - **Leaderboards**: Social motivation (coming soon)
 
-## 📸 Image Assets Needed
+## 📸 Optional Future Image Assets
 
-To complete the app, provide images for:
+The current app does not require you to manually add photos or image files. Before/after scan photos are saved automatically by the app in its local `Documents/ScanPhotos` folder, and simulator testing can use generated sample smile photos.
+
+Optional custom artwork that could improve polish later:
 1. **Mascot/Character** - Friendly tooth character in multiple states
-2. **Educational Illustrations** - Dental hygiene guides
+2. **Educational Illustrations** - Custom dental hygiene guides
 3. **Badge/Achievement Art** - Sticker set for rewards
 4. **UI Assets** - Custom icons and backgrounds
-5. **Example Photos** - Sample scan results for gallery
+5. **Marketing Screenshots** - App Store screenshots for publishing
 
 ## 🤝 Contributing
 

@@ -47,6 +47,11 @@ final class ScanPhotoStore {
         return try? Data(contentsOf: photosDirectory().appendingPathComponent(path))
     }
 
+    func clearAllPhotos() {
+        UserDefaults.standard.removeObject(forKey: indexKey)
+        try? fileManager.removeItem(at: photosDirectory())
+    }
+
     private func photosDirectory() -> URL {
         let base = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first ?? fileManager.temporaryDirectory
         return base.appendingPathComponent("ScanPhotos", isDirectory: true)

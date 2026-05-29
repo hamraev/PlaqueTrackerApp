@@ -13,7 +13,9 @@ struct BeforeAfterComparisonView: View {
     @ObservedObject var dashboardVM: AppDashboardViewModel
     let onStartNewScan: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showingAfter = false
+    @State private var revealProgress = false
 
     var body: some View {
         ScrollView {
@@ -40,11 +42,28 @@ struct BeforeAfterComparisonView: View {
                     Label("Start Another Smile Scan", systemImage: "camera.fill")
                         .primaryButtonStyle()
                 }
+
+                NavigationLink {
+                    LearnView()
+                } label: {
+                    Label("Learn One Tip", systemImage: "book.fill")
+                        .secondaryButtonStyle()
+                }
             }
             .padding(AppTheme.Spacing.md)
         }
         .navigationTitle("Compare My Smile")
         .background(AppColors.background)
+        .onAppear {
+            AppFeedbackManager.shared.brushingMissionCompleted()
+            guard !reduceMotion else {
+                revealProgress = true
+                return
+            }
+            withAnimation(AppTheme.Animation.spring.delay(0.12)) {
+                revealProgress = true
+            }
+        }
     }
 }
 
@@ -54,6 +73,8 @@ private extension BeforeAfterComparisonView {
             Image(systemName: "star.circle.fill")
                 .font(.system(size: 48, weight: .bold))
                 .foregroundColor(AppColors.accent)
+                .scaleEffect(revealProgress ? 1.0 : 0.78)
+                .opacity(revealProgress ? 1.0 : 0.2)
 
             Text("Great job!")
                 .font(AppTheme.headline1)
@@ -73,6 +94,7 @@ private extension BeforeAfterComparisonView {
             )
         )
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
+        .opacity(revealProgress ? 1.0 : 0.4)
     }
 
     var messageText: String {
@@ -96,6 +118,8 @@ private extension BeforeAfterComparisonView {
             ScanPhotoImage(data: viewModel.loadPhotoData(path: showingAfter ? session.afterPhotoPath : session.beforePhotoPath))
                 .frame(height: 260)
                 .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
+                .transition(.opacity)
+                .animation(reduceMotion ? nil : AppTheme.Animation.smooth, value: showingAfter)
 
             Picker("Compare", selection: $showingAfter) {
                 Text("Before").tag(false)

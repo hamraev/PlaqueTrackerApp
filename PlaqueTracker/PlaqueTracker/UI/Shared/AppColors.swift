@@ -97,7 +97,17 @@ struct AppColors {
     // MARK: - Semantic Colors for UI Elements
     
     /// Card background with subtle tint
-    static let cardBackground = Color(red: 0.98, green: 0.98, blue: 1.0) // Light blue
+    #if canImport(UIKit)
+    static let cardBackground = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+        ? UIColor(red: 0.10, green: 0.12, blue: 0.16, alpha: 1.0)
+        : UIColor(red: 0.98, green: 0.98, blue: 1.0, alpha: 1.0)
+    })
+    #elseif canImport(AppKit)
+    static let cardBackground = Color(NSColor.controlBackgroundColor)
+    #else
+    static let cardBackground = Color(red: 0.98, green: 0.98, blue: 1.0)
+    #endif
     
     /// Disabled state color
     static let disabled = Color(red: 0.9, green: 0.9, blue: 0.9)

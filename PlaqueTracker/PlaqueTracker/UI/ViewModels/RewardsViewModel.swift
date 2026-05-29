@@ -7,10 +7,6 @@
 
 import Foundation
 import Combine
-import AudioToolbox
-#if canImport(UIKit)
-import UIKit
-#endif
 
 /// Manages achievements and rewards state
 @MainActor
@@ -85,7 +81,7 @@ class RewardsViewModel: ObservableObject {
             updateStats()
             save()
             latestUnlock = achievements[index]
-            playUnlockFeedback()
+            AppFeedbackManager.shared.badgeUnlocked()
         }
     }
     
@@ -177,12 +173,5 @@ class RewardsViewModel: ObservableObject {
         default:
             return 150
         }
-    }
-
-    private func playUnlockFeedback() {
-        #if canImport(UIKit)
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
-        #endif
-        AudioServicesPlaySystemSound(1057)
     }
 }

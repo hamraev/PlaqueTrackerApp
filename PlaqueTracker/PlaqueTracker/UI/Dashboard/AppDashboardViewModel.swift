@@ -54,6 +54,8 @@ final class AppDashboardViewModel: ObservableObject {
     func completeScan() -> AchievementProgressSnapshot {
         scanCount += 1
         brushingMinutes += 2
+        streakDays = max(streakDays, 1)
+        bestStreak = max(bestStreak, streakDays)
 
         if smileScore == 100 {
             perfectScanCount += 1
@@ -62,6 +64,8 @@ final class AppDashboardViewModel: ObservableObject {
         UserDefaults.standard.set(scanCount, forKey: scanCountKey)
         UserDefaults.standard.set(brushingMinutes, forKey: brushingMinutesKey)
         UserDefaults.standard.set(perfectScanCount, forKey: perfectScanCountKey)
+
+        AppFeedbackManager.shared.streakContinued()
 
         return AchievementProgressSnapshot(
             scanCount: scanCount,

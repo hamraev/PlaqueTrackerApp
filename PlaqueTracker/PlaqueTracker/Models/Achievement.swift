@@ -19,6 +19,13 @@ struct Achievement: Identifiable, Codable {
     var isUnlocked: Bool = false
     var unlockedDate: Date?
     var progress: Int = 0 // Current progress toward requirement
+
+    var badgeAssetName: String {
+        "Badge_" + id
+            .split(separator: "_")
+            .map { $0.prefix(1).uppercased() + $0.dropFirst() }
+            .joined()
+    }
     
     /// Percentage of completion (0-100)
     var progressPercentage: Int {
@@ -97,16 +104,16 @@ extension Achievement {
             id: "first_scan",
             title: "First Scan",
             description: "Complete your first plaque scan",
-            icon: "checkmark.circle.fill",
+            icon: "magnifyingglass",
             color: "#FF9500",
             category: .getting_started,
             requirement: .scanCount(1)
         ),
         Achievement(
             id: "profile_complete",
-            title: "All Set Up",
+            title: "Family Hero",
             description: "Complete your profile and settings",
-            icon: "person.crop.circle.fill",
+            icon: "star.fill",
             color: "#007AFF",
             category: .getting_started,
             requirement: .scanCount(1) // Placeholder
@@ -115,7 +122,7 @@ extension Achievement {
         // Streaks
         Achievement(
             id: "streak_3",
-            title: "On Fire",
+            title: "3 Day Streak",
             description: "Reach a 3-day streak",
             icon: "flame.fill",
             color: "#FF3B30",
@@ -124,16 +131,16 @@ extension Achievement {
         ),
         Achievement(
             id: "streak_7",
-            title: "Week Warrior",
+            title: "7 Day Streak",
             description: "Reach a 7-day streak",
-            icon: "flame.fill",
+            icon: "rocket.fill",
             color: "#FF9500",
             category: .streaks,
             requirement: .streakDays(7)
         ),
         Achievement(
             id: "streak_30",
-            title: "Legend",
+            title: "30 Day Streak",
             description: "Reach a 30-day streak",
             icon: "crown.fill",
             color: "#FFD60A",
@@ -142,9 +149,9 @@ extension Achievement {
         ),
         Achievement(
             id: "streak_100",
-            title: "Unstoppable",
+            title: "Smile Champion",
             description: "Reach a 100-day streak",
-            icon: "star.fill",
+            icon: "trophy.fill",
             color: "#5AC8FA",
             category: .streaks,
             requirement: .streakDays(100)
@@ -153,18 +160,18 @@ extension Achievement {
         // Perfection
         Achievement(
             id: "perfect_scan",
-            title: "Perfect Start",
+            title: "Super Brusher",
             description: "Get a perfect 100 score on a scan",
-            icon: "checkmark.seal.fill",
+            icon: "toothbrush.fill",
             color: "#34C759",
             category: .perfection,
             requirement: .perfectionCount(1)
         ),
         Achievement(
             id: "five_perfect",
-            title: "Flawless",
+            title: "Cavity Crusher",
             description: "Get 5 perfect scans",
-            icon: "checkmark.seal.fill",
+            icon: "shield.fill",
             color: "#00C7BE",
             category: .perfection,
             requirement: .perfectionCount(5)
@@ -173,18 +180,18 @@ extension Achievement {
         // Consistency
         Achievement(
             id: "ten_scans",
-            title: "Scanner",
+            title: "Plaque Hunter",
             description: "Complete 10 scans",
-            icon: "dot.radiowaves.left.and.right",
+            icon: "person.fill.questionmark",
             color: "#007AFF",
             category: .consistency,
             requirement: .scanCount(10)
         ),
         Achievement(
             id: "fifty_scans",
-            title: "Scan Master",
+            title: "Red Spot Ranger",
             description: "Complete 50 scans",
-            icon: "dot.radiowaves.left.and.right",
+            icon: "scope",
             color: "#5856D6",
             category: .consistency,
             requirement: .scanCount(50)
@@ -202,9 +209,9 @@ extension Achievement {
         // Learning
         Achievement(
             id: "read_tips",
-            title: "Student",
+            title: "Science Explorer",
             description: "Read all learning tips",
-            icon: "book.fill",
+            icon: "testtube.2",
             color: "#34C759",
             category: .learning,
             requirement: .scanCount(1) // Placeholder

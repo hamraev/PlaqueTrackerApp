@@ -140,6 +140,8 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "PlaqueTracker uses the camera to take before and after smile photos for brushing progress.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "PlaqueTracker can use a sample or saved smile photo when the camera is unavailable.";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "PlaqueTracker uses Bluetooth to connect to the plaque scanner device.";
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -183,6 +185,8 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "PlaqueTracker uses the camera to take before and after smile photos for brushing progress.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "PlaqueTracker can use a sample or saved smile photo when the camera is unavailable.";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "PlaqueTracker uses Bluetooth to connect to the plaque scanner device.";
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

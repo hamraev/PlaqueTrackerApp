@@ -51,23 +51,10 @@ struct PhotoGalleryView: View {
 
 private extension PhotoGalleryView {
     var emptyState: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
-            Image(systemName: "camera.viewfinder")
-                .font(.system(size: 54, weight: .semibold))
-                .foregroundColor(AppColors.primary)
-
-            Text("No smile scans yet")
-                .font(AppTheme.headline2)
-
-            Text("Start your first scan and your before-and-after photos will appear here.")
-                .font(AppTheme.body)
-                .foregroundColor(AppColors.textSecondary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(AppTheme.Spacing.xl)
-        .background(AppColors.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
+        HappyToothEmptyState(
+            title: "No smile scans yet",
+            message: "Start your first scan and your before-and-after photos will appear here."
+        )
     }
 
     func sessionCard(_ session: ScanPhotoSession) -> some View {
