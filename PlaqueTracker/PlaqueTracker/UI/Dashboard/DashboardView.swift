@@ -36,10 +36,10 @@ struct DashboardView: View {
             photoVM.reload()
         }
         .onChange(of: dashboardVM.smileScore) { _, _ in
-            pulse(&scorePulse)
+            pulseScore()
         }
         .onChange(of: dashboardVM.xpPoints) { _, _ in
-            pulse(&xpPulse)
+            pulseXP()
         }
     }
 
@@ -141,11 +141,19 @@ struct DashboardView: View {
         .buttonStyle(.plain)
     }
 
-    private func pulse(_ value: inout Bool) {
+    private func pulseScore() {
         guard !reduceMotion else { return }
-        value = true
+        scorePulse = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-            value = false
+            scorePulse = false
+        }
+    }
+
+    private func pulseXP() {
+        guard !reduceMotion else { return }
+        xpPulse = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            xpPulse = false
         }
     }
 }

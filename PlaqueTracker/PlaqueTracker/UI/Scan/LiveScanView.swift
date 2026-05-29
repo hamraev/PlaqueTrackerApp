@@ -22,7 +22,12 @@ struct LiveScanView: View {
     private let rewardsViewModel = RewardsViewModel()
 
     @MainActor
-    init(dashboardVM: AppDashboardViewModel = AppDashboardViewModel()) {
+    init() {
+        self._dashboardVM = ObservedObject(wrappedValue: AppDashboardViewModel())
+    }
+
+    @MainActor
+    init(dashboardVM: AppDashboardViewModel) {
         self._dashboardVM = ObservedObject(wrappedValue: dashboardVM)
     }
 
