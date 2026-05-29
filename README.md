@@ -103,12 +103,14 @@ PlaqueTracker/
 - [x] Update Dashboard with design system
 - [x] Route ContentView to RootTabView
 
-### Phase 2: Rewards & Achievements
-- [ ] Build achievements data model
-- [ ] Implement RewardsView with badge display
-- [ ] Create badge animation system
-- [ ] Add milestone tracking
-- [ ] Wire up reward notifications
+### Phase 2: Rewards & Achievements ⚙️ IN PROGRESS
+- [x] Build achievements data model (Achievement.swift)
+- [x] Implement RewardsView with badge display
+- [x] Create badge animation system
+- [x] Add milestone tracking & progress calculation
+- [ ] Wire up reward notifications (sound/haptics)
+- [ ] Connect to dashboard/game state
+- [ ] Add achievement unlock animations
 
 ### Phase 3: Educational Content
 - [ ] Populate LearnView sections
