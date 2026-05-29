@@ -1,61 +1,79 @@
 import SwiftUI
 
 struct DashboardView: View {
+    @State private var smileScore = 82
+    @State private var streakDays = 5
+    @State private var xpPoints = 120
+    
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: AppTheme.Spacing.lg) {
                 headerCard
                 statsRow
+                StreakCard(current: streakDays, best: 12)
+                XPCard(currentXP: xpPoints, xpToNextLevel: 1000, level: 3)
                 startScanButton
             }
-            .padding()
+            .padding(AppTheme.Spacing.md)
         }
-        .navigationTitle("PlaqueTracker")
-    }
-}
-
-private extension DashboardView {
-    var headerCard: some View {
-        VStack(spacing: 12) {
+        .navigationTitleAppTheme.Spacing.md) {
             Text("Great job today!")
-                .font(.largeTitle.bold())
+                .font(AppTheme.headline1)
                 .multilineTextAlignment(.center)
 
-            Text("Your smile looks good. Let’s do a quick scan to check for missed spots.")
-                .font(.body)
-                .foregroundStyle(.secondary)
+            Text("Your smile looks fantastic. Let's keep the momentum going!")
+                .font(AppTheme.bodySmall)
+                .foregroundColor(AppColors.textSecondary)
                 .multilineTextAlignment(.center)
 
             ZStack {
                 Circle()
-                    .fill(Color.blue.opacity(0.12))
+                    .fill(Color.scoreColor(for: smileScore).opacity(0.15))
                     .frame(width: 140, height: 140)
 
                 VStack(spacing: 4) {
-                    Text("82")
-                        .font(.system(size: 42, weight: .bold, design: .rounded))
+                    Text("\(smileScore)")
+                        .font(AppTheme.display2)
+                        .foregroundColor(Color.scoreColor(for: smileScore))
+                    
                     Text("Smile Score")
-                        .font(.headline)
+                        .font(AppTheme.caption)
+                        .foregroundColor(AppColors.textSecondary)
                 }
             }
-            .padding(.top, 8)
         }
         .frame(maxWidth: .infinity)
-        .padding()
+        .padding(AppTheme.Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(Color.green.opacity(0.12))
-        )
-    }
-
-    var statsRow: some View {
-        HStack(spacing: 12) {
-            statCard(title: "Streak", value: "5 days", icon: "flame.fill")
-            statCard(title: "XP", value: "120", icon: "star.fill")
-        }
-    }
-
-    func statCard(title: String, value: String, icon: String) -> some View {
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.scoreColor(for: smileScore).opacity(0.08),
+                    Color.scoreColor(for: smileScore).opacity(0.03)
+                ]),AppTheme.Spacing.md) {
+            StatCard(
+                icon: "flame.fill",
+                value: "\(streakDays)d",
+                label: "Streak",
+                color: .orange,
+                isLarge: false
+            )
+            
+            StatCard(
+                icon: "star.fill",
+                value: "\(xpPoints)",
+                label: "XP",
+                color: AppColors.primary,
+                isLarge: false
+            )
+            
+            StatCard(
+                icon: "crown.fill",
+                value: "3",
+                label: "Level",
+                color: AppColors.accent,
+                isLarge: false
+            )
+        }statCard(title: String, value: String, icon: String) -> some View {
         VStack(spacing: 10) {
             Image(systemName: icon)
                 .font(.title2)
@@ -65,19 +83,13 @@ private extension DashboardView {
 
             Text(title)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.blue.opacity(0.10))
-        )
-    }
-
-    var startScanButton: some View {
-        Button {
-            // Next step: hook this into scan flow
+              (action: {}) {
+            HStack(spacing: AppTheme.Spacing.sm) {
+                Image(systemName: "dot.radiowaves.left.and.right")
+                Text("Start Scan")
+                    .font(AppTheme.bodyBold)
+            }
+            .primaryButtonStyle(
         } label: {
             HStack {
                 Image(systemName: "dot.radiowaves.left.and.right")
