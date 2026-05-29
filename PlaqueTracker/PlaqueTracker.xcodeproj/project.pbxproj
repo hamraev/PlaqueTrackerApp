@@ -60,6 +60,9 @@
 			);
 			dependencies = (
 			);
+			fileSystemSynchronizedGroups = (
+				748A13AA2F5696DE0033A52D /* PlaqueTracker */,
+			);
 			name = PlaqueTracker;
 			packageProductDependencies = (
 			);

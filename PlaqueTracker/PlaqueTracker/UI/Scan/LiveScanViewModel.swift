@@ -7,6 +7,7 @@
 
 import Foundation
 import AVFoundation
+import Combine
 
 #if canImport(UIKit)
 import UIKit

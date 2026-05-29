@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 import SwiftUI
 
 enum AppColorMode: String, CaseIterable, Identifiable {

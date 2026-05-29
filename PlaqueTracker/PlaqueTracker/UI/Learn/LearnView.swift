@@ -5,6 +5,7 @@
 //  Created by Gayrat Hamraev on 3/5/26.
 //
 
+import Combine
 import SwiftUI
 
 struct LearnView: View {
