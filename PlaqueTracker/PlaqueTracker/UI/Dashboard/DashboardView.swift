@@ -1,22 +1,30 @@
 import SwiftUI
 
 struct DashboardView: View {
-    @State private var smileScore = 82
-    @State private var streakDays = 5
-    @State private var xpPoints = 120
-    
+    @StateObject private var dashboardVM = AppDashboardViewModel()
+    @StateObject private var photoVM = LiveScanViewModel()
+
     var body: some View {
         ScrollView {
             VStack(spacing: AppTheme.Spacing.lg) {
                 headerCard
                 statsRow
-                StreakCard(current: streakDays, best: 12)
-                XPCard(currentXP: xpPoints, xpToNextLevel: 1000, level: 3)
+                StreakCard(current: dashboardVM.streakDays, best: dashboardVM.bestStreak)
+                XPCard(currentXP: dashboardVM.xpPoints, xpToNextLevel: dashboardVM.xpToNextLevel, level: dashboardVM.level)
                 startScanButton
+                galleryButton
             }
             .padding(AppTheme.Spacing.md)
         }
-        .navigationTitleAppTheme.Spacing.md) {
+        .navigationTitle("Home")
+        .background(AppColors.background)
+        .onAppear {
+            photoVM.reload()
+        }
+    }
+
+    private var headerCard: some View {
+        VStack(spacing: AppTheme.Spacing.md) {
             Text("Great job today!")
                 .font(AppTheme.headline1)
                 .multilineTextAlignment(.center)
@@ -28,14 +36,14 @@ struct DashboardView: View {
 
             ZStack {
                 Circle()
-                    .fill(Color.scoreColor(for: smileScore).opacity(0.15))
+                    .fill(Color.scoreColor(for: dashboardVM.smileScore).opacity(0.15))
                     .frame(width: 140, height: 140)
 
                 VStack(spacing: 4) {
-                    Text("\(smileScore)")
+                    Text("\(dashboardVM.smileScore)")
                         .font(AppTheme.display2)
-                        .foregroundColor(Color.scoreColor(for: smileScore))
-                    
+                        .foregroundColor(Color.scoreColor(for: dashboardVM.smileScore))
+
                     Text("Smile Score")
                         .font(AppTheme.caption)
                         .foregroundColor(AppColors.textSecondary)
@@ -47,66 +55,72 @@ struct DashboardView: View {
         .background(
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color.scoreColor(for: smileScore).opacity(0.08),
-                    Color.scoreColor(for: smileScore).opacity(0.03)
-                ]),AppTheme.Spacing.md) {
-            StatCard(
-                icon: "flame.fill",
-                value: "\(streakDays)d",
-                label: "Streak",
-                color: .orange,
-                isLarge: false
+                    Color.scoreColor(for: dashboardVM.smileScore).opacity(0.08),
+                    Color.scoreColor(for: dashboardVM.smileScore).opacity(0.03)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
-            
-            StatCard(
-                icon: "star.fill",
-                value: "\(xpPoints)",
-                label: "XP",
-                color: AppColors.primary,
-                isLarge: false
-            )
-            
-            StatCard(
-                icon: "crown.fill",
-                value: "3",
-                label: "Level",
-                color: AppColors.accent,
-                isLarge: false
-            )
-        }statCard(title: String, value: String, icon: String) -> some View {
-        VStack(spacing: 10) {
-            Image(systemName: icon)
-                .font(.title2)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
+    }
 
-            Text(value)
-                .font(.title3.bold())
+    private var statsRow: some View {
+        HStack(spacing: AppTheme.Spacing.md) {
+            StatCard(icon: "flame.fill", value: "\(dashboardVM.streakDays)d", label: "Streak", color: .orange)
+            StatCard(icon: "star.fill", value: "\(dashboardVM.xpPoints)", label: "XP", color: AppColors.primary)
+            StatCard(icon: "crown.fill", value: "\(dashboardVM.level)", label: "Level", color: AppColors.accent)
+        }
+    }
 
-            Text(title)
-                .font(.subheadline)
-              (action: {}) {
+    private var startScanButton: some View {
+        NavigationLink {
+            LiveScanView(dashboardVM: dashboardVM)
+        } label: {
             HStack(spacing: AppTheme.Spacing.sm) {
                 Image(systemName: "dot.radiowaves.left.and.right")
-                Text("Start Scan")
-                    .font(AppTheme.bodyBold)
+                Text("Start Smile Scan")
             }
-            .primaryButtonStyle(
-        } label: {
-            HStack {
-                Image(systemName: "dot.radiowaves.left.and.right")
-                Text("Start Scan")
-                    .fontWeight(.semibold)
-            }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color.blue)
-            .foregroundStyle(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 18))
+            .primaryButtonStyle()
         }
+    }
+
+    private var galleryButton: some View {
+        NavigationLink {
+            PhotoGalleryView(viewModel: photoVM, dashboardVM: dashboardVM)
+        } label: {
+            HStack(spacing: AppTheme.Spacing.md) {
+                Image(systemName: "photo.on.rectangle.angled")
+                    .font(.system(size: 26, weight: .semibold))
+                    .foregroundColor(AppColors.accent)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Smile Photo Gallery")
+                        .font(AppTheme.headline3)
+                        .foregroundColor(AppColors.text)
+
+                    Text(photoVM.totalScans == 0 ? "No smile scans yet. Start your first scan!" : "Compare your brushing progress")
+                        .font(AppTheme.bodySmall)
+                        .foregroundColor(AppColors.textSecondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .foregroundColor(AppColors.textTertiary)
+            }
+            .padding(AppTheme.Spacing.md)
+            .background(AppColors.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
+        }
+        .buttonStyle(.plain)
     }
 }
 
+#if DEBUG
 #Preview {
     NavigationStack {
         DashboardView()
     }
 }
+#endif

@@ -10,7 +10,7 @@ import SwiftUI
 struct RewardsView: View {
     @StateObject private var viewModel = RewardsViewModel()
     @State private var selectedCategory: AchievementCategory = .getting_started
-    @State private var showCategoryPicker = false
+    @State private var pulseUnlock = false
     
     var body: some View {
         NavigationStack {
@@ -42,6 +42,17 @@ struct RewardsView: View {
             }
             .navigationTitle("Rewards")
             .background(AppColors.background)
+            .overlay(alignment: .top) {
+                if let achievement = viewModel.latestUnlock {
+                    unlockBanner(for: achievement)
+                        .padding(AppTheme.Spacing.md)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
+            .animation(AppTheme.Animation.spring, value: viewModel.latestUnlock?.id)
+            .onAppear {
+                viewModel.reload()
+            }
         }
     }
 }
@@ -117,7 +128,7 @@ private extension RewardsView {
                     .font(.caption)
                 
                 Text("\(stats.unlocked)/\(stats.total)")
-                    .font(.captionSmall)
+                    .font(AppTheme.captionSmall)
             }
             .frame(minWidth: 70)
             .padding(.vertical, AppTheme.Spacing.sm)
@@ -132,7 +143,7 @@ private extension RewardsView {
     
     var recentUnlocksSection: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            Text("🎉 Recently Unlocked")
+            Text("Recently Unlocked")
                 .font(AppTheme.headline3)
             
             VStack(spacing: AppTheme.Spacing.md) {
@@ -165,7 +176,7 @@ private extension RewardsView {
                 
                 if let unlockedDate = achievement.unlockedDate {
                     Text("Unlocked \(unlockedDate.formatted(date: .abbreviated, time: .omitted))")
-                        .font(.captionSmall)
+                        .font(AppTheme.captionSmall)
                         .foregroundColor(AppColors.textTertiary)
                 }
             }
@@ -195,7 +206,7 @@ private extension RewardsView {
     
     var progressSection: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            Text("📈 Almost There")
+            Text("Almost There")
                 .font(AppTheme.headline3)
             
             VStack(spacing: AppTheme.Spacing.md) {
@@ -250,7 +261,7 @@ private extension RewardsView {
             .frame(height: 6)
             
             Text("\(achievement.progress) / \(achievement.requirement.targetValue) \(requirement(achievement))")
-                .font(.captionSmall)
+                .font(AppTheme.captionSmall)
                 .foregroundColor(AppColors.textTertiary)
         }
         .padding(AppTheme.Spacing.md)
@@ -296,7 +307,7 @@ private extension RewardsView {
                 
                 if !achievement.isUnlocked && achievement.progress > 0 {
                     Text("\(achievement.progressPercentage)%")
-                        .font(.captionSmall)
+                        .font(AppTheme.captionSmall)
                         .foregroundColor(AppColors.textSecondary)
                 }
             }
@@ -314,6 +325,58 @@ private extension RewardsView {
                     .background(Circle().fill(AppColors.background).frame(width: 24, height: 24))
                     .offset(x: 4, y: -4)
                     .transition(.scale.combined(with: .opacity))
+            }
+        }
+        .scaleEffect(viewModel.latestUnlock?.id == achievement.id && pulseUnlock ? 1.06 : 1.0)
+        .animation(AppTheme.Animation.spring, value: pulseUnlock)
+        .onChange(of: viewModel.latestUnlock?.id) { _, unlockedID in
+            guard unlockedID == achievement.id else { return }
+            pulseUnlock = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
+                pulseUnlock = false
+            }
+        }
+    }
+
+    func unlockBanner(for achievement: Achievement) -> some View {
+        HStack(spacing: AppTheme.Spacing.md) {
+            Image(systemName: achievement.icon)
+                .font(.system(size: 24, weight: .bold))
+                .foregroundColor(.white)
+                .frame(width: 48, height: 48)
+                .background(Color(hex: achievement.color))
+                .clipShape(Circle())
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Achievement Unlocked")
+                    .font(AppTheme.captionBold)
+                    .foregroundColor(AppColors.textSecondary)
+
+                Text(achievement.title)
+                    .font(AppTheme.headline3)
+            }
+
+            Spacer()
+
+            Button {
+                withAnimation(AppTheme.Animation.spring) {
+                    viewModel.dismissLatestUnlock()
+                }
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 22))
+                    .foregroundColor(AppColors.textTertiary)
+            }
+        }
+        .padding(AppTheme.Spacing.md)
+        .background(AppColors.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
+        .shadowMedium()
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                withAnimation(AppTheme.Animation.spring) {
+                    viewModel.dismissLatestUnlock()
+                }
             }
         }
     }
@@ -350,13 +413,5 @@ extension Color {
         let blue = Double(rgb & 0xFF) / 255.0
         
         self.init(red: red, green: green, blue: blue)
-    }
-}
-
-// MARK: - Achievement Category All Cases
-
-extension AchievementCategory: CaseIterable {
-    static var allCases: [AchievementCategory] {
-        [.getting_started, .streaks, .perfection, .consistency, .learning, .social, .special]
     }
 }

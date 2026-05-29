@@ -20,8 +20,8 @@ A kid-friendly, gamified iPhone app that connects to PlaqueTracker Arduino devic
 - ⏳ Design System (IN PROGRESS)
 - ⏳ Learn Section with educational content
 - ⏳ Rewards & Achievements system
-- ⏳ Live Scan with camera integration
-- ⏳ Photo gallery & before/after comparison
+- ✅ Live Scan with camera integration
+- ✅ Photo gallery & before/after comparison
 
 ## 🎨 Design System
 
@@ -103,26 +103,27 @@ PlaqueTracker/
 - [x] Update Dashboard with design system
 - [x] Route ContentView to RootTabView
 
-### Phase 2: Rewards & Achievements ⚙️ IN PROGRESS
+### Phase 2: Rewards & Achievements ✅ COMPLETE
 - [x] Build achievements data model (Achievement.swift)
 - [x] Implement RewardsView with badge display
 - [x] Create badge animation system
 - [x] Add milestone tracking & progress calculation
-- [ ] Wire up reward notifications (sound/haptics)
-- [ ] Connect to dashboard/game state
-- [ ] Add achievement unlock animations
+- [x] Persist achievement progress and unlocked state
+- [x] Wire up reward notifications (sound/haptics)
+- [x] Connect to dashboard/game state
+- [x] Add achievement unlock animations
 
-### Phase 3: Educational Content
-- [ ] Populate LearnView sections
-- [ ] Add educational illustrations
-- [ ] Create content hierarchy
-- [ ] Implement reading progress tracking
+### Phase 3: Educational Content ✅ COMPLETE
+- [x] Populate LearnView sections
+- [x] Add educational illustrations
+- [x] Create content hierarchy
+- [x] Implement reading progress tracking
 
-### Phase 4: Photo Integration
-- [ ] Build LiveScanView with camera capture
-- [ ] Create photo gallery view
-- [ ] Implement before/after comparison
-- [ ] Add progress visualization
+### Phase 4: Photo Integration ✅ COMPLETE
+- [x] Build LiveScanView with camera capture
+- [x] Create photo gallery view
+- [x] Implement before/after comparison
+- [x] Add progress visualization
 
 ### Phase 5: Polish & Publishing
 - [ ] Animations and micro-interactions

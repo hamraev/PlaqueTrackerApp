@@ -71,7 +71,7 @@ struct AchievementBadge: View {
             
             if !isUnlocked {
                 Text("Locked")
-                    .font(.captionBold)
+                    .font(AppTheme.captionBold)
                     .foregroundColor(AppColors.textTertiary)
                     .padding(.horizontal, AppTheme.Spacing.sm)
                     .padding(.vertical, 4)

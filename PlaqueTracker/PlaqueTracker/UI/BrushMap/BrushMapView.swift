@@ -7,6 +7,10 @@ struct BrushMapView: View {
 
     @State private var selectedZone: BrushMapViewModel.Zone? = nil
 
+    init(dashboardVM: AppDashboardViewModel = AppDashboardViewModel()) {
+        self._dashboardVM = ObservedObject(wrappedValue: dashboardVM)
+    }
+
     var body: some View {
         VStack(spacing: 16) {
             header

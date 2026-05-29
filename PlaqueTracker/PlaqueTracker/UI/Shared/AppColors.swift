@@ -6,6 +6,11 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 /// Centralized color palette for the PlaqueTracker app
 /// All colors follow kid-friendly, accessible design standards
@@ -50,6 +55,7 @@ struct AppColors {
     // MARK: - Neutral Colors
     
     /// Text color - primary text on light backgrounds
+    #if canImport(UIKit)
     static let text = Color(UIColor.label)
     
     /// Secondary text color - captions and hints
@@ -57,10 +63,20 @@ struct AppColors {
     
     /// Tertiary text color - disabled or background text
     static let textTertiary = Color(UIColor.tertiaryLabel)
+    #elseif canImport(AppKit)
+    static let text = Color(NSColor.labelColor)
+    static let textSecondary = Color(NSColor.secondaryLabelColor)
+    static let textTertiary = Color(NSColor.tertiaryLabelColor)
+    #else
+    static let text = Color.primary
+    static let textSecondary = Color.secondary
+    static let textTertiary = Color.gray
+    #endif
     
     // MARK: - Background Colors
     
     /// Main background
+    #if canImport(UIKit)
     static let background = Color(UIColor.systemBackground)
     
     /// Secondary background - for grouped content
@@ -68,6 +84,15 @@ struct AppColors {
     
     /// Tertiary background - for layered content
     static let backgroundTertiary = Color(UIColor.tertiarySystemBackground)
+    #elseif canImport(AppKit)
+    static let background = Color(NSColor.windowBackgroundColor)
+    static let backgroundSecondary = Color(NSColor.controlBackgroundColor)
+    static let backgroundTertiary = Color(NSColor.underPageBackgroundColor)
+    #else
+    static let background = Color.white
+    static let backgroundSecondary = Color.gray.opacity(0.08)
+    static let backgroundTertiary = Color.gray.opacity(0.12)
+    #endif
     
     // MARK: - Semantic Colors for UI Elements
     

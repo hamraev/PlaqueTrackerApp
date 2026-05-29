@@ -22,25 +22,13 @@ struct Achievement: Identifiable, Codable {
     
     /// Percentage of completion (0-100)
     var progressPercentage: Int {
-        switch requirement {
-        case .scanCount(let needed):
-            return min((progress * 100) / needed, 100)
-        case .streakDays(let needed):
-            return min((progress * 100) / needed, 100)
-        case .xpPoints(let needed):
-            return min((progress * 100) / needed, 100)
-        case .brushingTime(let needed):
-            return min((progress * 100) / needed, 100)
-        case .consistentDays(let needed):
-            return min((progress * 100) / needed, 100)
-        case .perfectionCount(let needed):
-            return min((progress * 100) / needed, 100)
-        }
+        let target = max(requirement.targetValue, 1)
+        return min(max((progress * 100) / target, 0), 100)
     }
 }
 
 /// Categories for organizing achievements
-enum AchievementCategory: String, Codable {
+enum AchievementCategory: String, Codable, CaseIterable {
     case getting_started = "Getting Started"
     case streaks = "Streaks"
     case perfection = "Perfection"
@@ -87,6 +75,16 @@ enum AchievementRequirement: Codable {
             return "\(n) perfect scans"
         }
     }
+}
+
+/// Current gameplay totals used to evaluate all achievements in one pass.
+struct AchievementProgressSnapshot {
+    var scanCount: Int = 0
+    var streakDays: Int = 0
+    var xpPoints: Int = 0
+    var brushingMinutes: Int = 0
+    var consistentPerfectDays: Int = 0
+    var perfectScanCount: Int = 0
 }
 
 // MARK: - Sample Achievements

@@ -7,55 +7,42 @@
 
 import Foundation
 import Combine
+import AudioToolbox
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// Manages achievements and rewards state
+@MainActor
 class RewardsViewModel: ObservableObject {
     @Published var achievements: [Achievement] = []
     @Published var totalXP: Int = 0
     @Published var unlockedCount: Int = 0
     @Published var selectedCategory: AchievementCategory = .getting_started
+    @Published var latestUnlock: Achievement?
+
+    private let storageKey = "PlaqueTracker.achievements.v1"
     
     init() {
+        initializeAchievements()
+    }
+
+    func reload() {
         initializeAchievements()
     }
     
     /// Initialize with template achievements
     private func initializeAchievements() {
-        var achievements = Achievement.templates
-        
-        // Simulate some unlocked achievements for preview
-        if let index = achievements.firstIndex(where: { $0.id == "first_scan" }) {
-            achievements[index].isUnlocked = true
-            achievements[index].unlockedDate = Date().addingTimeInterval(-86400 * 2) // 2 days ago
-        }
-        
-        if let index = achievements.firstIndex(where: { $0.id == "streak_3" }) {
-            achievements[index].isUnlocked = true
-            achievements[index].unlockedDate = Date().addingTimeInterval(-86400 * 1) // 1 day ago
-        }
-        
-        if let index = achievements.firstIndex(where: { $0.id == "ten_scans" }) {
-            achievements[index].isUnlocked = true
-            achievements[index].unlockedDate = Date().addingTimeInterval(-3600) // 1 hour ago
-        }
-        
-        // Set progress for some locked achievements
-        if let index = achievements.firstIndex(where: { $0.id == "streak_7" }) {
-            achievements[index].progress = 3 // 3 of 7 days
-        }
-        
-        if let index = achievements.firstIndex(where: { $0.id == "fifty_scans" }) {
-            achievements[index].progress = 10 // 10 of 50 scans
-        }
-        
-        self.achievements = achievements
+        self.achievements = loadPersistedAchievements()
         updateStats()
     }
     
     /// Update calculated statistics
     func updateStats() {
         unlockedCount = achievements.filter { $0.isUnlocked }.count
-        // In real app, would calculate from game state
+        totalXP = achievements
+            .filter { $0.isUnlocked }
+            .reduce(0) { $0 + xpReward(for: $1) }
     }
     
     /// Get achievements for current category
@@ -91,22 +78,36 @@ class RewardsViewModel: ObservableObject {
     /// Unlock an achievement
     func unlock(achievement: Achievement) {
         if let index = achievements.firstIndex(where: { $0.id == achievement.id }) {
+            guard !achievements[index].isUnlocked else { return }
             achievements[index].isUnlocked = true
+            achievements[index].progress = max(achievements[index].progress, achievements[index].requirement.targetValue)
             achievements[index].unlockedDate = Date()
             updateStats()
-            // In real app: trigger notification, play sound, animation
+            save()
+            latestUnlock = achievements[index]
+            playUnlockFeedback()
         }
     }
     
     /// Update achievement progress
     func updateProgress(for achievementID: String, progress: Int) {
         if let index = achievements.firstIndex(where: { $0.id == achievementID }) {
-            achievements[index].progress = progress
+            achievements[index].progress = max(progress, 0)
             
             // Check if achievement should be unlocked
             if progress >= achievements[index].requirement.targetValue && !achievements[index].isUnlocked {
                 unlock(achievement: achievements[index])
+            } else {
+                save()
             }
+        }
+    }
+
+    /// Evaluate every achievement against current app totals.
+    func apply(snapshot: AchievementProgressSnapshot) {
+        let requirements = achievements.map { ($0.id, $0.requirement) }
+        for (achievementID, requirement) in requirements {
+            updateProgress(for: achievementID, progress: progress(for: requirement, in: snapshot))
         }
     }
     
@@ -115,5 +116,73 @@ class RewardsViewModel: ObservableObject {
         let categoryAchievements = achievements.filter { $0.category == category }
         let unlockedCount = categoryAchievements.filter { $0.isUnlocked }.count
         return (categoryAchievements.count, unlockedCount)
+    }
+
+    func dismissLatestUnlock() {
+        latestUnlock = nil
+    }
+
+    private func progress(for requirement: AchievementRequirement, in snapshot: AchievementProgressSnapshot) -> Int {
+        switch requirement {
+        case .scanCount:
+            return snapshot.scanCount
+        case .streakDays:
+            return snapshot.streakDays
+        case .xpPoints:
+            return snapshot.xpPoints
+        case .brushingTime:
+            return snapshot.brushingMinutes
+        case .consistentDays:
+            return snapshot.consistentPerfectDays
+        case .perfectionCount:
+            return snapshot.perfectScanCount
+        }
+    }
+
+    private func loadPersistedAchievements() -> [Achievement] {
+        guard
+            let data = UserDefaults.standard.data(forKey: storageKey),
+            let persisted = try? JSONDecoder().decode([Achievement].self, from: data)
+        else {
+            return Achievement.templates
+        }
+
+        let persistedByID = Dictionary(uniqueKeysWithValues: persisted.map { ($0.id, $0) })
+
+        return Achievement.templates.map { template in
+            guard let saved = persistedByID[template.id] else { return template }
+
+            var merged = template
+            merged.isUnlocked = saved.isUnlocked
+            merged.unlockedDate = saved.unlockedDate
+            merged.progress = saved.progress
+            return merged
+        }
+    }
+
+    private func save() {
+        guard let data = try? JSONEncoder().encode(achievements) else { return }
+        UserDefaults.standard.set(data, forKey: storageKey)
+        updateStats()
+    }
+
+    private func xpReward(for achievement: Achievement) -> Int {
+        switch achievement.requirement.targetValue {
+        case 0...1:
+            return 25
+        case 2...10:
+            return 50
+        case 11...50:
+            return 100
+        default:
+            return 150
+        }
+    }
+
+    private func playUnlockFeedback() {
+        #if canImport(UIKit)
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        #endif
+        AudioServicesPlaySystemSound(1057)
     }
 }
